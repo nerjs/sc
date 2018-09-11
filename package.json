@@ -1,0 +1,23 @@
+{
+  "name": "sc",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "node ./index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nerjs/sc.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nerjs/sc/issues"
+  },
+  "homepage": "https://github.com/nerjs/sc#readme",
+  "dependencies": {
+    "opn": "^5.3.0",
+    "web3": "github:ethereum/web3.js"
+  }
+}
