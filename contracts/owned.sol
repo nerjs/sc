@@ -23,8 +23,10 @@ contract Owned {
         }
     } 
     
-    function testOwner() view public onlyOwner returns(string) {
-        return "Ok!";
+    function testOwner() view public onlyOwner returns(address) {
+        return(msg.sender);
     }
     
 }
+
+
