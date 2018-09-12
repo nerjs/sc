@@ -1,22 +1,23 @@
 pragma solidity ^0.4.0;
 import "./owned.sol";
+import "./token.sol";
 
 
-// contract Sc is Token, Owned {
-contract Sc is Owned {
+contract Sc is Token, Owned {
+// contract Sc is Owned {
     
-    uint256 public price = 2;              // Цена за токен
-    uint public factorMinDistribution = 3; // коофициент минимума к выводу
+    uint256 public price = 100000000000000;              // Цена за токен
+    uint public factorMinDistribution = 1000; // коофициент минимума к выводу умножено на количество токенов
     uint public factorMinPurchase = 1;     // минимально к покупке умножено на цену
     uint public lastDateDistribution = 0;  // таймстамп последнего распределения
-    uint public delayDistribution = 100;   // максимальное время холда
+    uint public delayDistribution = 3600;   // максимальное время холда
     
     function minPurchase() view public returns(uint) {
         return(price * factorMinPurchase);
     }
     
     function minDistribution() view public returns(uint) {
-        return (price * factorMinDistribution);
+        return (totalSupply * factorMinDistribution);
     }
     
     function timeIsUp() view public returns(bool) {
@@ -52,3 +53,4 @@ contract Sc is Owned {
     
     
 }
+
