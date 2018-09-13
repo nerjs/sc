@@ -3,12 +3,12 @@ pragma solidity ^0.4.0;
 contract Token {
 
     mapping (address => uint256) public balanceOf;
-    mapping (address => bool) public hasHistory;
-    address[] public accounts;
+    mapping (address => bool) hasHistory;
+    address[] accounts;
     mapping(address => mapping(address => uint256)) public allowance;
 
-    string constant name = "Simple ERC20 Token";
-    string constant symbol = "SET";
+    string constant name = "Blockchain hipe";
+    string constant symbol = "HIPE";
 
     uint256 public totalSupply = 10;
 
@@ -19,12 +19,20 @@ contract Token {
         balanceOf[msg.sender] = totalSupply;
         emit Transfer(address(0), msg.sender, totalSupply);
     }
+    
+    function setAccounts(address to) private {
+        if (!hasHistory[to]) {
+            hasHistory[to] = true;
+            accounts.push(to);
+        }
+    }
 
     function transfer(address to, uint256 value) public returns (bool success) {
         require(balanceOf[msg.sender] >= value);
 
         balanceOf[msg.sender] -= value;
         balanceOf[to] += value;
+        setAccounts(to);
         emit Transfer(msg.sender, to, value);
         return true;
     }
@@ -43,6 +51,7 @@ contract Token {
 
         balanceOf[from] -= value;
         balanceOf[to] += value;
+        setAccounts(to);
         allowance[from][msg.sender] -= value;
         emit Transfer(from, to, value);
         return true;
@@ -54,13 +63,9 @@ contract Token {
         }
         
         totalSupply += val;
-        if (hasHistory[to] == false) {
-            accounts.push(to);
-            hasHistory[to] = true;
-        }
-        
         balanceOf[to] += val;
-        emit Transfer(this, to, val);
+        setAccounts(to);
+        emit Transfer(address(this), to, val);
         return true;
     }
     

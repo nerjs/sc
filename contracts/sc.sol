@@ -6,11 +6,11 @@ import "./token.sol";
 contract Sc is Token, Owned {
 // contract Sc is Owned {
     
-    uint256 public price = 100000000000000;              // Цена за токен
-    uint public factorMinDistribution = 1000; // коофициент минимума к выводу умножено на количество токенов
-    uint public factorMinPurchase = 1;     // минимально к покупке умножено на цену
+    uint256 public price = 1 finney;              // Цена за токен
+    uint factorMinDistribution = 10; // коофициент минимума к выводу умножено на количество токенов
+    uint factorMinPurchase = 1;     // минимально к покупке умножено на цену
     uint public lastDateDistribution = 0;  // таймстамп последнего распределения
-    uint public delayDistribution = 3600;   // максимальное время холда
+    uint public delayDistribution = 100;   // максимальное время холда
     
     function minPurchase() view public returns(uint) {
         return(price * factorMinPurchase);
@@ -21,7 +21,7 @@ contract Sc is Token, Owned {
     }
     
     function timeIsUp() view public returns(bool) {
-        if (block.timestamp > (lastDateDistribution + delayDistribution) && address(this).balance >= (minDistribution() / 2)) {
+        if (now > (lastDateDistribution + delayDistribution) && address(this).balance >= (minDistribution() / 2)) {
             return(true);
         } else {
             return(false);
@@ -53,4 +53,3 @@ contract Sc is Token, Owned {
     
     
 }
-
