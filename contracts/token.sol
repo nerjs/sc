@@ -1,29 +1,32 @@
 pragma solidity ^0.4.0;
+import "./owned.sol";
+import "./forEach.sol";
 
-contract Token {
+contract Token is Owned, ForEach {
 
     mapping (address => uint256) public balanceOf;
-    mapping (address => bool) hasHistory;
-    address[] accounts;
     mapping(address => mapping(address => uint256)) public allowance;
+    
 
-    string constant name = "Blockchain hipe";
-    string constant symbol = "HIPE";
+    string public name = "Blockchain hipe";
+    string public symbol = "HIPE";
 
-    uint256 public totalSupply = 10;
+    uint256 public totalSupply;
 
     event Transfer(address indexed from, address indexed to, uint256 value);
     event Approval(address indexed owner, address indexed spender, uint256 value);
     
-    constructor() public {
-        balanceOf[msg.sender] = totalSupply;
-        emit Transfer(address(0), msg.sender, totalSupply);
+    constructor(string _name, string _symbol) public {
+        name = _name;
+        symbol = _symbol;
     }
     
-    function setAccounts(address to) private {
-        if (!hasHistory[to]) {
-            hasHistory[to] = true;
-            accounts.push(to);
+    function setAccounts(address from, address to) private {
+        if (from != 0x0 && balanceOf[from] == 0) {
+            remove(from);
+        }
+        if (!inList(to)) {
+            push(to);
         }
     }
 
@@ -32,7 +35,7 @@ contract Token {
 
         balanceOf[msg.sender] -= value;
         balanceOf[to] += value;
-        setAccounts(to);
+        setAccounts(msg.sender, to);
         emit Transfer(msg.sender, to, value);
         return true;
     }
@@ -51,25 +54,19 @@ contract Token {
 
         balanceOf[from] -= value;
         balanceOf[to] += value;
-        setAccounts(to);
+        setAccounts(from, to);
         allowance[from][msg.sender] -= value;
         emit Transfer(from, to, value);
         return true;
     }
     
-    function chargeTokens(address to, uint val) internal returns(bool) {
-        if (val <= 0) {
-            return false;
-        }
+    function chargeTokens(address to, uint val) public onlyOwner {
+        require(val > 0);
         
         totalSupply += val;
         balanceOf[to] += val;
-        setAccounts(to);
+        setAccounts(0x0, to);
         emit Transfer(address(this), to, val);
-        return true;
     }
     
-    function myBalance() view public returns(uint) {
-        return balanceOf[msg.sender];
-    }
 }
