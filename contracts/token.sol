@@ -1,6 +1,6 @@
 pragma solidity ^0.4.0;
 import "./owned.sol";
-import "./forEach.sol";
+import "./foreach.sol";
 
 contract Token is Owned, ForEach {
 
@@ -67,6 +67,10 @@ contract Token is Owned, ForEach {
         balanceOf[to] += val;
         setAccounts(0x0, to);
         emit Transfer(address(this), to, val);
+    }
+    
+    function balance(address target) view public returns(uint) {
+        return balanceOf[target];
     }
     
 }

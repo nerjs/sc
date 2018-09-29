@@ -1,61 +1,69 @@
 pragma solidity ^0.4.0;
-import "./sc.sol"; 
+import "./owned.sol";
+import "./token.sol";
 
-contract MyIndex is Sc {
-    mapping (address => uint256) public reinvestMap;
+
+contract Hipe is Owned {
+    Token public token = new Token("Hipe Token","HPT");
+    mapping (address => uint) public balanceEth;
+    uint public price = 10 finney;
     
-    event Distribution(uint totalToken, uint price, uint perToken, uint gasTotal);
+    // constructor(address _tok) public {
+    //     Token _token = new Token("Hipe Token", "HPT");
+    //     token = _token;
+    // }
     
-    function() payable external {
-        require(msg.value >= (factorMinPurchase * price));
-        purchase(msg.sender, msg.value);
+    function() payable public {
+        require(msg.value >= price);
+        require(msg.value > token.totalSupply());
+        distribution(msg.value);
     }
     
-    function reinvest(uint factor) public returns(bool) {
-        require(balanceOf[msg.sender] > 0);
-        require(factor >= 0);
-        require(factor <= 10);
+    function distribution(uint value) public {
+        uint ownerB = (value / 100) * 3;
+        uint valueB = value - ownerB;
+        balanceEth[owner] += ownerB;
         
-        reinvestMap[msg.sender] = factor;
-        return true;
-    }
-    
-    function purchase(address to, uint val) private {
-        chargeTokens(to, val / price);
-    }
-    
-    function distribution() public {
-        require(isBalanceOverflow() || timeIsUp());
-        lastDateDistribution = now;
-        owner.transfer(address(this).balance / 50);
-        uint distrBalance = (address(this).balance / 100) * 97;
-        uint ethForToken = distrBalance / totalSupply;
-        
-        
-        for (uint i = 0; i < accounts.length; i++) {
-            _onceDistribution(accounts[i], ethForToken);
+        if (token.first() == 0x0) {
+            balanceEth[owner] += valueB;
+        } else {
+            _distribution(valueB);
         }
-        
-        uint tokenSender = gasleft() / (price / 2);
-        if (tokenSender == 0) {
-            tokenSender = 1;
-        }
-        
-        chargeTokens(msg.sender, tokenSender);
-        
-        emit Distribution(totalSupply - tokenSender , price, ethForToken, gasleft());
+        token.chargeTokens(msg.sender, (valueB / price));
     }
     
-    function _onceDistribution(address to, uint val) private {
-        uint transferBalance = balanceOf[to] * val;
-        uint ri = (transferBalance / 10) * reinvestMap[to];
-        if (ri >= price) {
-            transferBalance -= ri;
-            chargeTokens(to, (ri / price));
-            transferBalance += (ri % price);
-        }
+    function _distribution(uint value) private {
+        uint v = value / token.totalSupply();
+        uint t;
+        uint i;
+        address p = token.first();
         
-        to.transfer(transferBalance);
+        while (p != 0x0 && i < token.length()) {
+            t = token.balance(p);
+            balanceEth[p] += v*t;
+            p = token.next(p);
+            i += 1;
+        }
     }
     
+    function test() view public returns(address) {
+        return owner;
+    }
+    
+    function withdrawal() public {
+        require(balanceEth[msg.sender] > 0);
+        uint _bal = balanceEth[msg.sender];
+        balanceEth[msg.sender] = 0;
+        address(msg.sender).transfer(_bal);
+    }
+    
+    
+    
+    function myBalance(bool typeBalance) view public returns(uint) {
+        if (typeBalance) {
+            return balanceEth[msg.sender];
+        } else {
+            return token.balance(msg.sender);
+        }
+    }
 }
