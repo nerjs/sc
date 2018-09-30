@@ -5,7 +5,7 @@ contract Owned {
     address newOwner;
     
     modifier onlyOwner() {
-        require(owner == msg.sender);
+        require(owner == msg.sender, "only Owner");
         _;
     }
     
@@ -23,7 +23,7 @@ contract Owned {
         }
     } 
     
-    function testOwner() view public onlyOwner returns(address) {
+    function testOwner() public view onlyOwner returns(address) {
         return(msg.sender);
     }
     
